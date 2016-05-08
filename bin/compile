@@ -10,6 +10,7 @@ end
 
 BUILD_DIR=ARGV[0]
 ENV_DIR=ARGV[2]
+BP_DIR=`cd $(dirname #{$0})/..; pwd`.gsub("\n", "")
 
 puts "-----> Found an .oracle.yml"
 
@@ -50,8 +51,9 @@ ORACLE_NETWORK_ADMIN_DIR = "#{BUILD_DIR}/#{ORACLE_INSTANT_CLIENT_DIR}/network/ad
 indent "Create profile.d script"
 `mkdir -p #{BUILD_DIR}/.profile.d`
 
+ORACLE_HOME = "/app/#{ORACLE_INSTANT_CLIENT_DIR}"
+
 open("#{BUILD_DIR}/.profile.d/oracle.sh", "w") do |f|
-  ORACLE_HOME = "/app/#{ORACLE_INSTANT_CLIENT_DIR}"
   f.puts "export ORACLE_HOME=#{ORACLE_HOME}"
   f.puts "export LD_LIBRARY_PATH=#{ORACLE_HOME}:$LD_LIBRARY_PATH"
   f.puts "export PATH=#{ORACLE_HOME}:$PATH"
@@ -71,6 +73,13 @@ open(File.join(ENV_DIR,'LD_LIBRARY_PATH'), 'w') do |f|
     value += ":#{existing_ld_library_path}"
   end
   f.puts value
+end
+
+indent "Save OCI_LIB_DIR to #{BP_DIR}/export"
+open(File.join(BP_DIR,'export'), 'w') do |f|
+  f.puts "export OCI_LIB_DIR=#{BUILD_DIR}/#{ORACLE_INSTANT_CLIENT_DIR}"
+  f.puts "export OCI_INC_DIR=#{BUILD_DIR}/#{ORACLE_INSTANT_CLIENT_DIR}/sdk/include"
+  f.puts "export LD_LIBRARY_PATH=#{BUILD_DIR}/#{ORACLE_INSTANT_CLIENT_DIR}:$LD_LIBRARY_PATH"
 end
 
 indent "Done!"
